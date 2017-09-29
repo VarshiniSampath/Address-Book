@@ -1,0 +1,12 @@
+{
+  "presets": [
+    "es2015",
+    "stage-0",
+    "react"
+  ],
+  "plugins": [
+    "./build/babelRelayPlugin",
+    "transform-runtime",
+    "transform-class-properties"
+  ]
+}
