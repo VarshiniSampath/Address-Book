@@ -1,49 +1,55 @@
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
-const bodyParser = require('body-parser');
+import express from 'express';
+import graphQLHTTP from 'express-graphql';
+import mongoose from 'mongoose';
+import path from 'path';
+import webpack from 'webpack';
+import WebpackDevServer from 'webpack-dev-server';
+import { Schema } from '../../data/schema';
 
+const APP_PORT = 8000;
+const GRAPHQL_PORT = 8080;
+const MONGODB = process.env.MONGO || "mongodb://localhost:27017/publications";
+
+// Expose a GraphQL endpoint
 module.exports = (server) => {
-
-  server.use(bodyParser.urlencoded( { extended: true } ));
-
-  /**
-   * Controller that routes requests based on the URL using ExpressJS.
-   * Server runs on PORT 3000.
-   **/
-
-  // The root of the project is index.html, which is opened when the project is opened.
-  server.get('/', (request, response) => {
-    response.sendFile(path.resolve('./public/index.html'));
+  server.use('/', graphQLHTTP({
+    schema: Schema,
+    pretty: true
+  }))
+  .listen(GRAPHQL_PORT, () => { console.log(
+    `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}` );
   });
-
-  // Common resolve for all other kinds of URL.
-  server.get('*', (request, response) => {
-
-    const filePath = path.join('./' + request.url);
-    const fileExtension = path.extname(filePath);
-
-    console.log(request.url + " " + fileExtension);
-    let contentType = 'text/html';
-
-    if (fileExtension === '.css') {
-      contentType = 'text/css';
-    } else if (fileExtension === '.js') {
-      contentType = 'application/javascript';
-    } else if (fileExtension === '.png') {
-      contentType = 'image/png';
-    }
-
-    fs.readFile(filePath, (error, content) => {
-      if (!error) {
-        response.writeHead(200, { 'Content-Type': "'" + contentType + ";charset=utf-8" });
-        response.write(content);
-        response.end();
-      } else {
-        console.log(error);
-        response.writeHead(500);
-        response.end();
-      }
-    });
-   });
 };
+
+// Serve the Relay app
+const compiler = webpack({
+  entry: path.resolve(__dirname, 'js', 'index.js'),
+  module: {
+    loaders: [
+      {
+        exclude: /node_modules/,
+        loader: 'babel',
+      },
+    ],
+  },
+  output: {
+    path: '/',
+    filename: 'main.js'
+  },
+  devServer: {
+    historyApiFallback: true,
+    contentBase: './',
+  },
+});
+const app = new WebpackDevServer(compiler, {
+  contentBase: '/public/',
+  proxy: {'/graphql': `http://localhost:${GRAPHQL_PORT}`},
+  publicPath: '/src/',
+  stats: {colors: true},
+});
+
+// Serve static resources
+app.use('/', express.static(path.resolve(__dirname, 'public')));
+app.listen(APP_PORT, () => {
+  console.log(`App is now running on http://localhost:${APP_PORT}`);
+});

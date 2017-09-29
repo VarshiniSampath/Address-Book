@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App.jsx';
+import App from '../components/App.jsx';
 
 const ES6Promise = require("es6-promise");
 ES6Promise.polyfill();

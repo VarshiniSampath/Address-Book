@@ -9,7 +9,7 @@ const PublicationSchema = new mongoose.Schema({
   citationCount: Number
 });
 
-let Publications = mongoose.model('papers', PublicationSchema);
+let Publications = mongoose.model('Publication', PublicationSchema, 'papers');
 exports.PublicationModel = Publications;
 
 exports.getPublication = () => {

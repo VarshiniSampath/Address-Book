@@ -6,7 +6,7 @@ import {
 import { nodeInterface } from '../nodes.js';
 
 const publicationType = new GraphQLObjectType({
-  name: 'papers',
+  name: 'Publication',
   description: 'A research publication',
   fields: () => ({
     id: globalIdField('papers'),

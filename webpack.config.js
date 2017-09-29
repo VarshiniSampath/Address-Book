@@ -4,28 +4,25 @@
 
 
 module.exports = {
-  entry: __dirname + '/src/index.js',
+  entry: __dirname + '/src/app/',
   output: {
     path: __dirname + '/public',
+    publicPath: '/',
     filename: 'main.js'
   },
   module: {
     loaders: [
       {
-        test: /\.jsx?$/,
-        exclude: /(node_modules)/,
-        loader: 'babel-loader',
-        query: {
-          presets:['react','es2015', 'stage-0']
-        }
-      },
-      {
-        test:/\.css$/,
-        loader:'style-loader!css-loader'
+        exclude: /node_modules/,
+        loader: 'babel'
       }
     ]
   },
   resolve: {
-    extensions: ['.js', '.json', '.jsx', '.css']
+    extensions: ['', '.js', '.jsx']
+  },
+  devServer: {
+    historyApiFallback: true,
+    contentBase: './'
   }
 };
